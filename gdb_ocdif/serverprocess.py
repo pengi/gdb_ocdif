@@ -3,10 +3,10 @@ import subprocess as sp
 
 
 class OCDIFProcess:
-    process: Optional[sp.Popen]
+    process: Optional[sp.Popen[str]]
 
     def __init__(self, command: List[str]) -> None:
-        self.process = sp.Popen(command, stdin=sp.DEVNULL)
+        self.process = sp.Popen(command, stdin=sp.DEVNULL, text=True)
 
     def stop(self) -> None:
         if self.process is not None:
