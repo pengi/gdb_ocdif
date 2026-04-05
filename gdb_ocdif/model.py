@@ -1,10 +1,7 @@
 import random
-
-import subprocess
+import atexit
 from .serverprocess import OCDIFProcess
-
 from .gdbif import ArgType, gdb_call
-
 from typing import Dict, Optional, List, Set
 
 
@@ -60,22 +57,28 @@ class OCDIFModel:
         self.probes = {}
         self.cur_session = None
         self.name_type = ArgType("name", completer=self._name_completer)
+        atexit.register(self._cleanup)
 
     def _name_completer(
         self, word: str, flags: Set[str] = set(), values: Dict[str, str] = {}
     ) -> List[str]:
         return [name for name in self.probes.keys()]
 
+    def _cleanup(self) -> None:
+        print("Cleaning up")
+        if self.cur_session is not None:
+            self.cur_session.disconnect()
+            self.cur_session = None
+
     def add_probe(self, name: str, probe: OCDIFProbe) -> None:
         self.probes[name] = probe
 
     def disconnect(self) -> None:
-        try:
-            gdb_call("detach")
-        except:
-            pass
-
         if self.cur_session is not None:
+            try:
+                gdb_call("detach")
+            except:
+                pass
             self.cur_session.disconnect()
             self.cur_session = None
 

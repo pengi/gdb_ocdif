@@ -18,7 +18,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import gdb
+from typing import TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    import gdb
+
+    commandlist: List[gdb.Command] = []
+else:
+    try:
+        import gdb
+
+        commandlist: List[gdb.Command] = []
+    except ModuleNotFoundError:
+        from .mock import gdb
+
+        commandlist: List[gdb.Command] = gdb.commandlist
+
 import traceback
 
 from typing import List, Tuple, Dict, Callable, Optional, Set

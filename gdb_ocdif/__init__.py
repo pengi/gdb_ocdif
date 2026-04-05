@@ -1,4 +1,4 @@
-from .gdbif import ArgCommand, gdb_call
+from .gdbif import ArgCommand, gdb_call, commandlist
 from .model import OCDIFModel
 from .probe_openocd import OCDIFOpenOCDCommand
 from .commands import OCDIFListCommand, OCDIFConnectCommand, OCDIFDisonnectCommand

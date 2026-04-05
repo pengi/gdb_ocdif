@@ -30,3 +30,8 @@ Homepage = "https://github.com/pengi/gdb_ocdif"
 [tool.mypy]
 strict = true
 files = ["gdb_ocdif/**.py"]
+
+[tool.pytest]
+doctest_optionflags = ["NORMALIZE_WHITESPACE"]
+testpaths = ["testcases", "gdb_ocdif"]
+addopts = ["--doctest-modules", "-v"]
