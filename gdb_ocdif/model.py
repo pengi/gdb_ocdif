@@ -1,7 +1,8 @@
 import random
 import atexit
+import time
 from .serverprocess import OCDIFProcess
-from .gdbif import ArgType, gdb_call
+from .gdbif import ArgType, gdb_call, set_prompt_hook, gdbif_register_event
 from typing import Dict, Optional, List, Set
 
 
@@ -21,11 +22,21 @@ class OCDIFProbeSession:
 class OCDIFProbeCommandSession(OCDIFProbeSession):
     command: List[str]
     process: Optional[OCDIFProcess]
+    started_indicator: Optional[str]
+    start_delay: Optional[float]
 
-    def __init__(self, remote_command: str, command: List[str]) -> None:
+    def __init__(
+        self,
+        remote_command: str,
+        command: List[str],
+        started_indicator: Optional[str] = None,
+        start_delay: Optional[float] = None,
+    ) -> None:
         super().__init__(remote_command)
         self.command = command
         self.process = None
+        self.started_indicator = started_indicator
+        self.start_delay = start_delay
 
     def disconnect(self) -> None:
         if self.process is not None:
@@ -35,6 +46,13 @@ class OCDIFProbeCommandSession(OCDIFProbeSession):
     def connect(self) -> None:
         assert self.process is None
         self.process = OCDIFProcess(self.command)
+        if self.started_indicator is not None:
+            self.process.monitor_start(self.started_indicator)
+        self.process.start()
+        if self.started_indicator is not None:
+            self.process.monitor_wait()
+        if self.start_delay is not None:
+            time.sleep(self.start_delay)
 
 
 class OCDIFProbe:
@@ -51,24 +69,37 @@ class OCDIFProbe:
 class OCDIFModel:
     probes: Dict[str, OCDIFProbe]
     cur_session: Optional[OCDIFProbeSession]
+    cur_name: Optional[str]
     name_type: ArgType
 
     def __init__(self) -> None:
         self.probes = {}
         self.cur_session = None
+        self.cur_name = None
         self.name_type = ArgType("name", completer=self._name_completer)
-        atexit.register(self._cleanup)
+        set_prompt_hook(self._prompt_hook)
+
+        # Catch inferior exits, so we can gracefully follow up with a closed
+        # OCD session
+        gdbif_register_event(lambda events: events.exited, self._exit_handler)
+
+    def _prompt_hook(self, current_prompt: str) -> str:
+        if self.cur_name is None:
+            return "(gdb) "
+        else:
+            return f"({self.cur_name} gdb) "
 
     def _name_completer(
         self, word: str, flags: Set[str] = set(), values: Dict[str, str] = {}
     ) -> List[str]:
         return [name for name in self.probes.keys()]
 
-    def _cleanup(self) -> None:
-        print("Cleaning up")
+    def _exit_handler(self) -> None:
+        print("atexit-hook: cleanup")
         if self.cur_session is not None:
             self.cur_session.disconnect()
             self.cur_session = None
+            self.cur_name = None
 
     def add_probe(self, name: str, probe: OCDIFProbe) -> None:
         self.probes[name] = probe
@@ -79,8 +110,11 @@ class OCDIFModel:
                 gdb_call("detach")
             except:
                 pass
+        # detach has probably already disconnected, re-check
+        if self.cur_session is not None:
             self.cur_session.disconnect()
             self.cur_session = None
+            self.cur_name = None
 
     def connect(self, name: str) -> None:
         self.disconnect()
@@ -89,6 +123,7 @@ class OCDIFModel:
 
         port = random.randint(10000, 20000)
         self.cur_session = self.probes[name].create_session(port)
+        self.cur_name = name
 
         self.cur_session.connect()
 

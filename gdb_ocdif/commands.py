@@ -52,7 +52,6 @@ class OCDIFDisonnectCommand(ArgCommand):
     def __init__(self, model: OCDIFModel) -> None:
         super().__init__("ocdif disconnect")
         self.model = model
-        self.add_arg(self.model.name_type)
 
     def call(self, flags: Set[str], args: Dict[str, str]) -> None:
-        self.model.connect(args["name"])
+        self.model.disconnect()

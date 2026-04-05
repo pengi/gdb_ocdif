@@ -55,7 +55,12 @@ class OCDIFOpenOCD(OCDIFProbe):
         for line in script:
             command += ["-c", line]
 
-        return OCDIFProbeCommandSession("extended-remote", command)
+        return OCDIFProbeCommandSession(
+            remote_command="extended-remote",
+            command=command,
+            started_indicator="session started",
+            start_delay=0.5,
+        )
 
 
 class OCDIFOpenOCDCommand(ArgCommand):

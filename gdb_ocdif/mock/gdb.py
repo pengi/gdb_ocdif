@@ -3,8 +3,12 @@
 # This needs to be available in the library to be easily loaded in place of
 # gdb, to make testing and debugging work without too much trouble.
 
-from typing import List
+from typing import List, Callable
 import shlex
+import sys
+
+# Re-export Thread, since gdb has its own gdb-safe subclass
+from threading import Thread
 
 COMMAND_USER = 0x1234000101
 COMPLETE_NONE = 0x1234000201
@@ -60,3 +64,20 @@ def string_to_argv(text: str) -> List[str]:
     commands, keep it simple and split like shell commands instead
     """
     return shlex.split(text)
+
+
+#####
+# For synced write implementation
+#####
+
+
+def write(text: str) -> None:
+    sys.stdout.write(text)
+
+
+def post_event(event: Callable[[], None]) -> None:
+    event()
+
+
+def prompt_hook(current_prompt: str) -> str:
+    return current_prompt

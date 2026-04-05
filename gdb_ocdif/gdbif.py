@@ -29,6 +29,7 @@ else:
         import gdb
 
         commandlist: List[gdb.Command] = []
+
     except ModuleNotFoundError:
         from .mock import gdb
 
@@ -36,11 +37,48 @@ else:
 
 import traceback
 
-from typing import List, Tuple, Dict, Callable, Optional, Set
+from typing import List, Tuple, Dict, Callable, Optional, Set, Any
+
+# Re-export Thread class, using the gdb-safe wrapper
+Thread = gdb.Thread
+
+
+def set_prompt_hook(prompt_hook: Callable[[str], str]) -> None:
+    gdb.prompt_hook = prompt_hook
 
 
 def gdb_call(command: str) -> None:
     gdb.execute(command)
+
+
+# TODO: Make this handle types better.
+# Connect to an event, and bind to it. However, if gdb.events is not set (which
+# is the case for mock library), just ignore for now...
+#
+# TODO: Make mockable variant of Event argument. Not needed for now though.
+def gdbif_register_event(
+    event_getter: Callable[[Any], Any], handler: Callable[[], None]
+) -> None:
+    try:
+        events = gdb.events
+    except NameError:
+        pass
+    else:
+        event_getter(events).connect(lambda event: handler())
+
+
+class GDBWriter:
+    text: str
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+    def __call__(self) -> None:
+        gdb.write(self.text + "\n")
+
+
+def gdbif_writeln(text: str) -> None:
+    gdb.post_event(GDBWriter(text))
 
 
 class ArgType:
