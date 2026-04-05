@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "setuptools-git-versioning<2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools-git-versioning]
+enabled = true
+
+[project]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+name = 'gdb-ocdif'
+description = 'Python module for GDB manage OCD servers'
+readme = "README.md"
+authors = [{ name = "Max Sikström", email = "max@pengi.se" }]
+license = { file = 'LICENSE' }
+
+dependencies = ["cmsis-svd >= 0.6"]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/pengi/gdb_ocdif"
+
+[tool.mypy]
+strict = true
+files = ["gdb_ocdif/**.py"]
