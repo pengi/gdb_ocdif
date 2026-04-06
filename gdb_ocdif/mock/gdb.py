@@ -75,9 +75,5 @@ def write(text: str) -> None:
     sys.stdout.write(text)
 
 
-def post_event(event: Callable[[], None]) -> None:
-    event()
-
-
 def prompt_hook(current_prompt: str) -> str:
     return current_prompt

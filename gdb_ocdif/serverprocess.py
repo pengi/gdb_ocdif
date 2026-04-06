@@ -1,4 +1,4 @@
-from typing import List, Optional, IO
+from typing import List, Optional, IO, reveal_type
 import subprocess as sp
 import selectors as sels
 import threading as thr
@@ -79,6 +79,8 @@ class OCDIFProcess(Thread):
                 self._threaded_print(" # ", line)
             else:
                 self._threaded_print(" > ", line)
+
+        assert process.stdout is not None
 
         selector = sels.DefaultSelector()
         selector.register(process.stdout, sels.EVENT_READ, process_stdout)

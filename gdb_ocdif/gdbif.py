@@ -71,7 +71,7 @@ def gdbif_register_event(
 ) -> None:
     try:
         events = gdb.events
-    except NameError:
+    except AttributeError:
         pass
     else:
         event_getter(events).connect(lambda *args: handler())
