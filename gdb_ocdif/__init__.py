@@ -1,7 +1,12 @@
 from .gdbif import ArgCommand, gdb_call, commandlist
 from .model import OCDIFModel
 from .probe_openocd import OCDIFOpenOCDCommand
-from .commands import OCDIFListCommand, OCDIFConnectCommand, OCDIFDisonnectCommand
+from .commands import (
+    OCDIFListCommand,
+    OCDIFSelectCommand,
+    OCDIFConnectCommand,
+    OCDIFDisonnectCommand,
+)
 
 from typing import Set, Dict
 
@@ -24,5 +29,6 @@ model = OCDIFModel()
 OCDIFTools(model)
 OCDIFOpenOCDCommand(model)
 OCDIFListCommand(model)
+OCDIFSelectCommand(model)
 OCDIFConnectCommand(model)
 OCDIFDisonnectCommand(model)

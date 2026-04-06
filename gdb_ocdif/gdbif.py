@@ -91,10 +91,12 @@ class ArgType:
     ) -> int | List[str]:
         if self.completer is None:
             return gdb.COMPLETE_NONE
-        elif callable(self.completer):
-            return self.completer(word, flags, values)
+
+        if callable(self.completer):
+            options = self.completer(word, flags, values)
         else:
-            return [name for name in self.completer if name.startswith(word)]
+            options = self.completer
+        return [name for name in options if name.startswith(word)]
 
     def get(
         self, word: str, flags: Set[str] = set(), values: Dict[str, str] = {}
@@ -103,6 +105,23 @@ class ArgType:
             return word
         else:
             return self.getter(word, flags, values)
+
+    def clone(
+        self,
+        /,
+        name: Optional[str] = None,
+        completer: (
+            None | Callable[[str, Set[str], Dict[str, str]], List[str]] | List[str]
+        ) = None,
+        getter: Optional[Callable[[str, Set[str], Dict[str, str]], str]] = None,
+        optional: Optional[bool] = None,
+    ) -> "ArgType":
+        return ArgType(
+            self.name if name is None else name,
+            self.completer if completer is None else completer,
+            self.getter if getter is None else getter,
+            self.optional if optional is None else optional,
+        )
 
 
 class ArgInvalidException(Exception):

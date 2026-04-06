@@ -24,6 +24,26 @@ class OCDIFListCommand(ArgCommand):
         print_table(["name", "target", "serial", "type"], info)
 
 
+class OCDIFSelectCommand(ArgCommand):
+    """
+    Select a debug probe as default
+
+    This probe will be used for "ocdif connect" later, if name is omitted
+
+    To see which probes are avajlable, call: ocdif list
+    """
+
+    model: OCDIFModel
+
+    def __init__(self, model: OCDIFModel) -> None:
+        super().__init__("ocdif select")
+        self.model = model
+        self.add_arg(self.model.name_type)
+
+    def call(self, flags: Set[str], args: Dict[str, str]) -> None:
+        self.model.select(args["name"])
+
+
 class OCDIFConnectCommand(ArgCommand):
     """
     Connect to a registered debug probe
@@ -36,13 +56,16 @@ class OCDIFConnectCommand(ArgCommand):
     def __init__(self, model: OCDIFModel) -> None:
         super().__init__("ocdif connect")
         self.model = model
-        self.add_arg(self.model.name_type)
+        self.add_arg(self.model.name_type.clone(optional=True))
 
     def call(self, flags: Set[str], args: Dict[str, str]) -> None:
         # Don't repeat reconnects
         # This is usually just by mistake, and needs to be done explicitly
         self.dont_repeat()
-        self.model.connect(args["name"])
+        if "name" in args:
+            self.model.connect(args["name"])
+        else:
+            self.model.connect()
 
 
 class OCDIFDisonnectCommand(ArgCommand):

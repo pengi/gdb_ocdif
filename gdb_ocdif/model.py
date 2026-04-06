@@ -74,10 +74,13 @@ class OCDIFModel:
     name_type: ArgType
     scrollback: OCDIFScrollback
 
+    selected_name: Optional[str]
+
     def __init__(self) -> None:
         self.probes = {}
         self.cur_session = None
         self.cur_name = None
+        self.selected_name = None
         self.name_type = ArgType("name", completer=self._name_completer)
         self.scrollback = OCDIFScrollback()
         set_prompt_hook(self._prompt_hook)
@@ -107,6 +110,10 @@ class OCDIFModel:
     def add_probe(self, name: str, probe: OCDIFProbe) -> None:
         self.probes[name] = probe
 
+    def select(self, name: str) -> None:
+        assert name in self.probes
+        self.selected_name = name
+
     def disconnect(self) -> None:
         if self.cur_session is not None:
             try:
@@ -119,8 +126,15 @@ class OCDIFModel:
             self.cur_session = None
             self.cur_name = None
 
-    def connect(self, name: str) -> None:
+    def connect(self, name: Optional[str] = None) -> None:
         self.disconnect()
+
+        if name is None:
+            name = self.selected_name
+
+        if name is None:
+            raise Exception(f"No probe selected, need to select or specify")
+
         if name not in self.probes:
             raise Exception(f"Probe {name} not defined")
 
