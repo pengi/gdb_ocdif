@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]
-name = "gdb_ocdif"
+name = "gdb-ocdif"
 description = "Python module for GDB manage OCD servers"
 readme = "README.md"
 authors = [{ name = "Max Sikström", email = "max@pengi.se" }]

@@ -22,11 +22,11 @@ and also has convenience macros for rebuilding and reprogramming automatically.
 
 ## Install
 
-Install `gdb_ocdif`, so it's available from gdb environment.
+Install `gdb-ocdif`, so it's available from gdb environment.
 
 ### Install from pypi:
 ```sh
-pip install --user gdb_ocdif
+pip install --user gdb-ocdif
 ```
 Make sure the install path, usually `~/.local` is available for python search
 path
