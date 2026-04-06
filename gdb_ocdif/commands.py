@@ -39,6 +39,9 @@ class OCDIFConnectCommand(ArgCommand):
         self.add_arg(self.model.name_type)
 
     def call(self, flags: Set[str], args: Dict[str, str]) -> None:
+        # Don't repeat reconnects
+        # This is usually just by mistake, and needs to be done explicitly
+        self.dont_repeat()
         self.model.connect(args["name"])
 
 
