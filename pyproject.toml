@@ -5,21 +5,23 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools-git-versioning]
 enabled = true
 
+[tool.setuptools]
+packages = ["gdb_ocdif"]
+
 [project]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Natural Language :: English",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
 dynamic = ["version"]
-name = 'gdb-ocdif'
-description = 'Python module for GDB manage OCD servers'
+name = "gdb_ocdif"
+description = "Python module for GDB manage OCD servers"
 readme = "README.md"
 authors = [{ name = "Max Sikström", email = "max@pengi.se" }]
-license = { file = 'LICENSE' }
+license = "MIT"
 
 dependencies = []
 requires-python = ">=3.10"
