@@ -2,8 +2,8 @@ from typing import List, Optional, IO
 import subprocess as sp
 import selectors as sels
 import threading as thr
-from .gdbif import Thread, gdbif_writeln
-
+from .gdbif import Thread
+from .scrollback import scrollback_write
 import shlex
 
 
@@ -26,7 +26,7 @@ class OCDIFProcess(Thread):
     def stop(self) -> None:
         self._running = False
         self.join()
-        self._threaded_print("OCD  ", "ocd server closed properly")
+        self._threaded_print("OCD   ", "ocd server closed properly")
 
     def monitor_start(self, line: str) -> None:
         assert self._monitor_line is None
@@ -39,7 +39,7 @@ class OCDIFProcess(Thread):
 
     def run(self) -> None:
         excaped_command = shlex.join(self._command)
-        self._threaded_print("OCD  ", f"Calling: {excaped_command}\n")
+        self._threaded_print("OCD   ", f"Calling: {excaped_command}\n")
 
         process: sp.Popen[str] = sp.Popen(
             self._command,
@@ -59,9 +59,9 @@ class OCDIFProcess(Thread):
             if self._monitor_line is not None and self._monitor_line in line:
                 self._monitor_semaphore.release()
                 self._monitor_line = None
-                self._threaded_print("OCD #", line)
+                self._threaded_print("OCD # ", line)
             else:
-                self._threaded_print("OCD >", line)
+                self._threaded_print("OCD > ", line)
 
         selector = sels.DefaultSelector()
         selector.register(process.stdout, sels.EVENT_READ, process_stdout)
@@ -74,18 +74,18 @@ class OCDIFProcess(Thread):
         self._alive = False
         if process.returncode is not None:
             self._threaded_print(
-                "OCD  ",
+                "OCD   ",
                 f"Process {self._command[0]} exited with code {process.returncode}\n",
             )
         else:
             process.terminate()
             try:
                 outs, errs = process.communicate(timeout=2.0)
-                self._threaded_print("OCD >", outs)
+                self._threaded_print("OCD > ", outs)
             except sp.TimeoutExpired:
                 process.kill()
                 outs, errs = process.communicate()
-                self._threaded_print("OCD >", outs)
+                self._threaded_print("OCD > ", outs)
 
         selector.close()
 
@@ -93,4 +93,4 @@ class OCDIFProcess(Thread):
         if text is None:
             return
         for line in text.splitlines():
-            gdbif_writeln(f"{prefix} {line}")
+            scrollback_write(prefix, text)

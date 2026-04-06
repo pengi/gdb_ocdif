@@ -64,21 +64,11 @@ def gdbif_register_event(
     except NameError:
         pass
     else:
-        event_getter(events).connect(lambda event: handler())
+        event_getter(events).connect(lambda *args: handler())
 
 
-class GDBWriter:
-    text: str
-
-    def __init__(self, text: str) -> None:
-        self.text = text
-
-    def __call__(self) -> None:
-        gdb.write(self.text + "\n")
-
-
-def gdbif_writeln(text: str) -> None:
-    gdb.post_event(GDBWriter(text))
+def gdbif_raw_write(line: str) -> None:
+    gdb.write(line + "\n")
 
 
 class ArgType:

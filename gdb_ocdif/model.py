@@ -3,6 +3,7 @@ import atexit
 import time
 from .serverprocess import OCDIFProcess
 from .gdbif import ArgType, gdb_call, set_prompt_hook, gdbif_register_event
+from .scrollback import OCDIFScrollback
 from typing import Dict, Optional, List, Set
 
 
@@ -71,12 +72,14 @@ class OCDIFModel:
     cur_session: Optional[OCDIFProbeSession]
     cur_name: Optional[str]
     name_type: ArgType
+    scrollback: OCDIFScrollback
 
     def __init__(self) -> None:
         self.probes = {}
         self.cur_session = None
         self.cur_name = None
         self.name_type = ArgType("name", completer=self._name_completer)
+        self.scrollback = OCDIFScrollback()
         set_prompt_hook(self._prompt_hook)
 
         # Catch inferior exits, so we can gracefully follow up with a closed
