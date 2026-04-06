@@ -85,6 +85,7 @@ class OCDIFModel:
         # Catch inferior exits, so we can gracefully follow up with a closed
         # OCD session
         gdbif_register_event(lambda events: events.exited, self._exit_handler)
+        gdbif_register_event(lambda events: events.gdb_exiting, self._exit_handler)
 
     def _prompt_hook(self, current_prompt: str) -> str:
         if self.cur_name is None:
