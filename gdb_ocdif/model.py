@@ -99,7 +99,6 @@ class OCDIFModel:
         return [name for name in self.probes.keys()]
 
     def _exit_handler(self) -> None:
-        print("atexit-hook: cleanup")
         if self.cur_session is not None:
             self.cur_session.disconnect()
             self.cur_session = None
