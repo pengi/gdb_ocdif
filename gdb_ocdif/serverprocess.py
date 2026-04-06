@@ -34,7 +34,7 @@ class OCDIFProcess(Thread):
     def stop(self) -> None:
         self._running = False
         self.join()
-        self._threaded_print("   ", "ocd server closed properly")
+        self._threaded_print("   ", "closed")
 
     def monitor_start(self, line: str) -> None:
         assert self._monitor_line is None
@@ -92,7 +92,7 @@ class OCDIFProcess(Thread):
         if process.returncode is not None:
             self._threaded_print(
                 "   ",
-                f"Process {self._command[0]} exited with code {process.returncode}\n",
+                f"Process '{self._command[0]}' exited with code {process.returncode}\n",
             )
         else:
             process.terminate()

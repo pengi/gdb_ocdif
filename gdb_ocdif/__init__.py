@@ -6,6 +6,8 @@ from .commands import (
     OCDIFSelectCommand,
     OCDIFConnectCommand,
     OCDIFDisonnectCommand,
+    OCDIFResetCommand,
+    OCDIFReloadCommand,
 )
 
 from typing import Set, Dict
@@ -32,3 +34,5 @@ OCDIFListCommand(model)
 OCDIFSelectCommand(model)
 OCDIFConnectCommand(model)
 OCDIFDisonnectCommand(model)
+OCDIFResetCommand(model)
+OCDIFReloadCommand(model)

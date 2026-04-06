@@ -7,13 +7,13 @@ class OCDIFScrollback:
 
     def __init__(self) -> None:
         self._queue = queue.Queue()
-        gdbif_register_event(lambda events: events.before_prompt, self._output)
+        gdbif_register_event(lambda events: events.before_prompt, self.flush)
 
     def write_text(self, prefix: str, text: str) -> None:
         for line in text.splitlines():
             self._queue.put(prefix + line.rstrip())
 
-    def _output(self) -> None:
+    def flush(self) -> None:
         try:
             while True:
                 line = self._queue.get(False)

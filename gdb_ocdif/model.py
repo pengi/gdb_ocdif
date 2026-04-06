@@ -9,9 +9,11 @@ from typing import Dict, Optional, List, Set
 
 class OCDIFProbeSession:
     remote_command: str
+    reset_halt_command: str
 
-    def __init__(self, remote_command: str) -> None:
+    def __init__(self, remote_command: str, reset_halt_command: str) -> None:
         self.remote_command = remote_command
+        self.reset_halt_command = reset_halt_command
 
     def disconnect(self) -> None:
         raise NotImplementedError("disconnect() is not implemented")
@@ -29,11 +31,12 @@ class OCDIFProbeCommandSession(OCDIFProbeSession):
     def __init__(
         self,
         remote_command: str,
+        reset_halt_command: str,
         command: List[str],
         started_indicator: Optional[str] = None,
         start_delay: Optional[float] = None,
     ) -> None:
-        super().__init__(remote_command)
+        super().__init__(remote_command, reset_halt_command)
         self.command = command
         self.process = None
         self.started_indicator = started_indicator
@@ -145,3 +148,7 @@ class OCDIFModel:
         self.cur_session.connect()
 
         gdb_call(f"target {self.cur_session.remote_command} localhost:{port}")
+
+    def reset_halt(self) -> None:
+        assert self.cur_session is not None
+        gdb_call(self.cur_session.reset_halt_command)

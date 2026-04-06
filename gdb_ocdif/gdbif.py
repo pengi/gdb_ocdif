@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple, Dict, Callable, Optional, Set, Any
 
 if TYPE_CHECKING:
     import gdb
@@ -36,8 +36,7 @@ else:
         commandlist: List[gdb.Command] = gdb.commandlist
 
 import traceback
-
-from typing import List, Tuple, Dict, Callable, Optional, Set, Any
+import os
 
 # Re-export Thread class, using the gdb-safe wrapper
 Thread = gdb.Thread
@@ -49,6 +48,17 @@ def set_prompt_hook(prompt_hook: Callable[[str], str]) -> None:
 
 def gdb_call(command: str) -> None:
     gdb.execute(command)
+
+
+def gdb_loaded_file() -> Optional[str]:
+    try:
+        path = gdb.objfiles()[0].filename
+        if path is None:
+            return None
+        else:
+            return os.path.relpath(path)
+    except:
+        return None
 
 
 # TODO: Make this handle types better.

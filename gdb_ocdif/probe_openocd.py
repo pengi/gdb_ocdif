@@ -57,6 +57,7 @@ class OCDIFOpenOCD(OCDIFProbe):
 
         return OCDIFProbeCommandSession(
             remote_command="extended-remote",
+            reset_halt_command="monitor reset halt",
             command=command,
             started_indicator="session started",
             start_delay=0.5,
