@@ -21,8 +21,8 @@ readme = "README.md"
 authors = [{ name = "Max Sikström", email = "max@pengi.se" }]
 license = { file = 'LICENSE' }
 
-dependencies = ["cmsis-svd >= 0.6"]
-requires-python = ">=3.6"
+dependencies = []
+requires-python = ">=3.10"
 
 [project.urls]
 Homepage = "https://github.com/pengi/gdb_ocdif"
