@@ -26,7 +26,7 @@ class OCDIFProcess(Thread):
     def stop(self) -> None:
         self._running = False
         self.join()
-        print("Closed and joined")
+        self._threaded_print("OCD  ", "ocd server closed properly")
 
     def monitor_start(self, line: str) -> None:
         assert self._monitor_line is None
@@ -34,12 +34,12 @@ class OCDIFProcess(Thread):
 
     def monitor_wait(self, timeout: Optional[float] = None) -> None:
         if not self._monitor_semaphore.acquire(timeout=timeout):
-            raise Exception("Line monitor timeout")  # TODO: Better exception
+            raise Exception("OCD monitor fail")  # TODO: Better exception
         assert self._monitor_line is None
 
     def run(self) -> None:
         excaped_command = shlex.join(self._command)
-        self._threaded_print(f"Calling: {excaped_command}\n")
+        self._threaded_print("OCD  ", f"Calling: {excaped_command}\n")
 
         process: sp.Popen[str] = sp.Popen(
             self._command,
@@ -54,12 +54,14 @@ class OCDIFProcess(Thread):
 
         def process_stdout(stream: IO[str], mask: int) -> None:
             line = stream.readline()
-            self._threaded_print(line)
 
             # If monitored line is receieved, release the monitor semaphore back
             if self._monitor_line is not None and self._monitor_line in line:
                 self._monitor_semaphore.release()
                 self._monitor_line = None
+                self._threaded_print("OCD #", line)
+            else:
+                self._threaded_print("OCD >", line)
 
         selector = sels.DefaultSelector()
         selector.register(process.stdout, sels.EVENT_READ, process_stdout)
@@ -72,24 +74,23 @@ class OCDIFProcess(Thread):
         self._alive = False
         if process.returncode is not None:
             self._threaded_print(
-                f"Process {self._command[0]} exited with code {process.returncode}\n"
+                "OCD  ",
+                f"Process {self._command[0]} exited with code {process.returncode}\n",
             )
         else:
             process.terminate()
             try:
                 outs, errs = process.communicate(timeout=2.0)
-                self._threaded_print(outs)
-                self._threaded_print(errs)
+                self._threaded_print("OCD >", outs)
             except sp.TimeoutExpired:
                 process.kill()
                 outs, errs = process.communicate()
-                self._threaded_print(outs)
-                self._threaded_print(errs)
+                self._threaded_print("OCD >", outs)
 
         selector.close()
 
-    def _threaded_print(self, text: Optional[str]) -> None:
+    def _threaded_print(self, prefix: str, text: Optional[str]) -> None:
         if text is None:
             return
         for line in text.splitlines():
-            gdbif_writeln(f"OCDIF: {line}")
+            gdbif_writeln(f"{prefix} {line}")
