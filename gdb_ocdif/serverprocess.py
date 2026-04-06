@@ -1,4 +1,4 @@
-from typing import List, Optional, IO, reveal_type
+from typing import List, Optional, IO
 import subprocess as sp
 import selectors as sels
 import threading as thr
