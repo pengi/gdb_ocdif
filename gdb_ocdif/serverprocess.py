@@ -36,6 +36,8 @@ class OCDIFProcess(Thread):
     _monitor_line: Optional[str]
     _monitor_semaphore: thr.Semaphore
 
+    returncode: Optional[int]
+
     def __init__(self, command: List[str], prefix: Optional[str] = None) -> None:
         super().__init__()
         if prefix is not None:
@@ -50,6 +52,8 @@ class OCDIFProcess(Thread):
 
         self._monitor_line = None
         self._monitor_semaphore = thr.Semaphore(0)
+
+        self.returncode = None
 
     def stop(self) -> None:
         self._running = False
@@ -127,6 +131,8 @@ class OCDIFProcess(Thread):
                 self._threaded_print(" > ", outs)
 
         selector.close()
+
+        self.returncode = process.returncode
 
     def _threaded_print(self, prefix: str, text: Optional[str]) -> None:
         if text is None:

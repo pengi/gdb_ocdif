@@ -143,6 +143,10 @@ class OCDIFReloadCommand(ArgCommand):
         self.model = model
 
     def call(self, flags: Set[str], args: Dict[str, str]) -> None:
+        # Don't repeat reconnects
+        # This is usually just by mistake, and needs to be done explicitly
+        self.dont_repeat()
+
         self.model.disconnect()
         loaded_file = gdb_loaded_file()
         if loaded_file is not None:
@@ -154,6 +158,14 @@ class OCDIFReloadCommand(ArgCommand):
                 scrollback_buffer.flush()
             # Just make sure to clean up
             make_process.stop()
+
+            if make_process is None:
+                print("Internal error, make didn't finish")
+            elif make_process.returncode != 0:
+                print(f"Make error, aborting ({make_process.returncode})")
+                return
+            else:
+                print("Make finished")
         else:
             print("No loaded file, skipping make")
         self.model.connect()

@@ -106,7 +106,7 @@ class OCDIFModel:
         self.selected_name = None
         self.name_type = ArgType("name", completer=self._name_completer)
         self.scrollback = OCDIFScrollback()
-        set_prompt_hook(self._prompt_hook)
+        # set_prompt_hook(self._prompt_hook)
 
         # Catch inferior exits, so we can gracefully follow up with a closed
         # OCD session
